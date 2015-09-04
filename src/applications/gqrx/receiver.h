@@ -33,6 +33,7 @@
 #include <gnuradio/top_block.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
+#include <gnuradio/fosphor/qt_sink_c.h>
 
 #include <osmosdr/source.h>
 
@@ -158,6 +159,8 @@ public:
     void get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
     void get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
 
+    QWidget *get_fosphor_widget(void);
+
     /* Noise blanker */
     status set_nb_on(int nbid, bool on);
     status set_nb_threshold(int nbid, float threshold);
@@ -244,6 +247,8 @@ private:
 
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
+
+    gr::fosphor::qt_sink_c::sptr fosphor; /*!< fosphor block */
 
     gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
     gr::blocks::multiply_cc::sptr       mixer;

@@ -27,6 +27,7 @@
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
+#include <gnuradio/fosphor/qt_sink_c.h>
 #include <osmosdr/source.h>
 #include <osmosdr/ranges.h>
 
@@ -90,6 +91,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
     iq_fft = make_rx_fft_c(4096u, 0);
+
+    fosphor = gr::fosphor::qt_sink_c::make();
 
     audio_fft = make_rx_fft_f(4096u);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
@@ -279,6 +282,7 @@ double receiver::set_input_rate(double rate)
     rx->set_quad_rate(d_input_rate);
     lo->set_sampling_freq(d_input_rate);
     tb->unlock();
+    fosphor->set_frequency_span(rate);
 
     return d_input_rate;
 }
@@ -383,6 +387,7 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     d_rf_freq = freq_hz;
 
     src->set_center_freq(d_rf_freq);
+    fosphor->set_frequency_center((double)d_rf_freq);
     // FIXME: read back frequency?
 
     return STATUS_OK;
@@ -592,6 +597,11 @@ void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fft
 void receiver::get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     audio_fft->get_fft_data(fftPoints, fftsize);
+}
+
+QWidget *receiver::get_fosphor_widget(void)
+{
+	return fosphor->qwidget();
 }
 
 receiver::status receiver::set_nb_on(int nbid, bool on)
@@ -1116,10 +1126,12 @@ void receiver::connect_all(rx_chain type)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
             tb->connect(dc_corr, 0, iq_fft, 0);
+	    tb->connect(dc_corr, 0, fosphor, 0);
         }
         else
         {
             tb->connect(iq_swap, 0, iq_fft, 0);
+	    tb->connect(iq_swap, 0, fosphor, 0);
         }
         break;
 
@@ -1134,11 +1146,13 @@ void receiver::connect_all(rx_chain type)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
             tb->connect(dc_corr, 0, iq_fft, 0);
+            tb->connect(dc_corr, 0, fosphor, 0);
             tb->connect(dc_corr, 0, mixer, 0);
         }
         else
         {
             tb->connect(iq_swap, 0, iq_fft, 0);
+            tb->connect(iq_swap, 0, fosphor, 0);
             tb->connect(iq_swap, 0, mixer, 0);
         }
         tb->connect(lo, 0, mixer, 1);
@@ -1162,11 +1176,13 @@ void receiver::connect_all(rx_chain type)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
             tb->connect(dc_corr, 0, iq_fft, 0);
+            tb->connect(dc_corr, 0, fosphor, 0);
             tb->connect(dc_corr, 0, mixer, 0);
         }
         else
         {
             tb->connect(iq_swap, 0, iq_fft, 0);
+            tb->connect(iq_swap, 0, fosphor, 0);
             tb->connect(iq_swap, 0, mixer, 0);
         }
         tb->connect(lo, 0, mixer, 1);

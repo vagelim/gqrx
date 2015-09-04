@@ -90,6 +90,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     rx = new receiver("", "");
     rx->set_rf_freq(144500000.0f);
 
+    ui->fosphor_container->addWidget(rx->get_fosphor_widget());
+
     // remote controller
     remote = new RemoteControl();
 

@@ -221,6 +221,15 @@ contains(AUDIO_BACKEND, pulse): {
     PKGCONFIG += gnuradio-audio
 }
 
+# Detect fosphor
+unix {
+    packagesExist(gnuradio-fosphor) {
+        PKGCONFIG += gnuradio-fosphor
+        DEFINES += WITH_FOSPHOR
+        message("Gqrx configured with fosphor display")
+    }
+}
+
 PKGCONFIG += gnuradio-analog \
              gnuradio-blocks \
              gnuradio-digital \
