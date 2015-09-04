@@ -46,6 +46,10 @@ int main(int argc, char *argv[])
     bool clierr=false;
     bool edit_conf = false;
 
+#if QT_VERSION >= 0x040800
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+#endif
+
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
